@@ -1,42 +1,58 @@
-import puppeteer from "puppeteer";
+const express = require('express');
+const puppeteer = require('puppeteer');
+const bodyParser = require('body-parser');
+const cors=require('cors')
 
-const getQuotes = async () => {
-  // Start a Puppeteer session with:
-  // - a visible browser (`headless: false` - easier to debug because you'll see the browser in action)
-  // - no default viewport (`defaultViewport: null` - website page will in full width and height)
-  const browser = await puppeteer.launch({
-    headless: false,
-    defaultViewport: null,
-  });
+const app = express();
+const port = 3000;
+app.use(cors());
+app.use(bodyParser.json());
 
-  const page = await browser.newPage();
+// Endpoint to receive URL and search query
+app.post('/scrape', async (req, res) => {
+    const { url, tagName, attributes } = req.body;
 
-  // On this new page:
-  // - open the "http://quotes.toscrape.com/" website
-  // - wait until the dom content is loaded (HTML is ready)
-  await page.goto("http://quotes.toscrape.com/", {
-    waitUntil: "domcontentloaded",
-  });
+    // Check if URL and tagName are provided
+    if (!url || !tagName) {
+        return res.status(400).send('URL and tagName are required');
+    }
 
-  // Get page data
-  const quotes = await page.evaluate(() => {
-    // Fetch the first element with class "quote"
-    const quote = document.querySelector(".quote");
+    try {
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+        await page.goto(url);
 
-    // Fetch the sub-elements from the previously fetched quote element
-    // Get the displayed text and return it (`.innerText`)
-    const text = quote.querySelector(".text").innerText;
-    const author = quote.querySelector(".author").innerText;
+        // Scrape data based on tagName and attributes
+        const data = await page.evaluate(({ tagName, attributes }) => {
+            const elements = Array.from(document.querySelectorAll(tagName));
+            return elements.map(element => {
+                let elementData = {};
 
-    return { text, author };
-  });
+                // If attributes are provided, use them
+                if (attributes && attributes.length > 0) {
+                    attributes.forEach(attr => {
+                        if (attr === 'text') elementData.text = element.textContent.trim();
+                        else if (element.getAttribute(attr)) elementData[attr] = element.getAttribute(attr);
+                    });
+                } else {
+                    // Default to just text content if no attributes are specified
+                    elementData.text = element.textContent.trim();
+                }
+                
+                return elementData;
+            });
+        }, { tagName, attributes: attributes || [] });
 
-  // Display the quotes
-  console.log(quotes);
+        await browser.close();
 
-  // Close the browser
-  await browser.close();
-};
+        return res.json(data);
+    } catch (error) {
+        console.error('Scraping failed:', error.message);
+        return res.status(500).send('Internal Server Error');
+    }
+});
 
-// Start the scraping
-getQuotes();
+
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+});
