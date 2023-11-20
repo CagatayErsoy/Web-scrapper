@@ -8,6 +8,10 @@ const port = 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
+
+app.get('/', (req, res) => {
+   console.log( " its working")
+  });
 // Endpoint to receive URL and search query
 app.post('/scrape', async (req, res) => {
     const { url, tagName, attributes } = req.body;
