@@ -1,67 +1,123 @@
+import { useRef } from "react";
 import { useGlobalContext } from "../context";
-
+import { htmlTags, customStyles } from "../utilties";
+import Select, { components } from "react-select";
+import { FaChevronDown } from "react-icons/fa"; // Example using react-icons
+import "../costum-styles.css";
 const Details = () => {
-  const { url,tagName, handleUrl, handleTag, handleClassName, handleText,getData } =
-    useGlobalContext();
+  const {
+    url,
+    tagName,
+    className,
+    searchText,
+    handleUrl,
+    handleTag,
+    handleClassName,
+    handleText,
+    getData,
+    subTags,
+  } = useGlobalContext();
 
+  const DropdownIndicator = (props) => {
+    return (
+      <components.DropdownIndicator {...props}>
+        <FaChevronDown style={{ color: "#6b7280" }} />{" "}
+        {/* Set your desired color here */}
+      </components.DropdownIndicator>
+    );
+  };
+
+  const options = () => {
+    return htmlTags.map((tag) => ({ value: tag, label: tag }));
+  };
+  console.log(options());
   return (
-    <div className="grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-4 gap-4">
+      {/* URL Input */}
       <input
         type="url"
-        className="w-full mb-3 rounded-md border-0 bg-white/5 px-3.5 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6 col-span-3"
+        className="col-span-4 mb-3 row-start-1 rounded-md border bg-white/5 px-3.5 py-2 text-white shadow-sm focus:outline-none focus:ring-0 focus:border-indigo-500"
         placeholder="Enter website URL"
         value={url}
         onChange={(e) => handleUrl(e.target.value)}
       />
-      <div className="col-span-3">
-        <div className="flex justify-center	gap-5">
-          {" "}
-          <label className="mt-2 text-base leading-2 text-gray-300">
-            Add text for search:
-          </label>
-          <input
-            type="text"
-            className="mb-3 rounded-md border-0 bg-white/5 px-3.5 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
-            placeholder="Included Texts"
-            value={null}
-            onChange={(e) => handleText(e.target.value)}
-          />
-        </div>
 
-        <select
-          className="w-full mb-3 rounded-md border-0 bg-white/5 px-3.5 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
+      {/* Details */}
+      <div className="flex justify-between gap-5 w-full col-span-4">
+        {/* Text for Search */}
+        <input
+          type="text"
+          className="rounded-md border bg-white/5 px-3.5 py- text-white shadow-sm focus:outline-none focus:ring-0 focus:border-indigo-500"
+          placeholder="Text for search"
+          value={searchText}
+          onChange={(e) => handleText(e.target.value)}
+        />
+
+        {/* Class Name or ID */}
+        <input
+          type="text"
+          className="rounded-md border bg-white/5 px-3.5 py-1 text-white shadow-sm focus:outline-none focus:ring-0 focus:border-indigo-500"
+          placeholder="Class name or ID"
+          value={className}
+          onChange={(e) => handleClassName(e.target.value)}
+        />
+
+        {/* Tag Selector */}
+        <Select
           value={tagName}
-          onChange={(e) => handleTag(e.target.value)}
-        >
-          <option value="">Select Tag</option>
-          <option value="div">Div</option>
-          <option value="span">Span</option>
-          <option value="a">Anchor (a)</option>
-        </select>
-        <button
-          className="rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 col-start-2"
-          onClick={getData}
-        >
-          Add sub tags
-        </button>
-        <select
-          className="w-full mb-3 rounded-md border-0 bg-white/5 px-3.5 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
+          placeholder="Select tag"
+          unstyled
+          styles={customStyles}
+          components={{ DropdownIndicator }}
+          options={options()}
+          onChange={(selectedOption) => handleTag(selectedOption ? selectedOption.value : '')}
+          classNames={{
+            control: () =>
+              "rounded-md border bg-white/5 px-3.5 py-2 text-[#6b7280] shadow-sm border-[#6b7280] focus:outline-none focus:ring-0 focus:border-indigo-500",
+          }}
+          // classNamePrefix="dropdown"
+        />
+        {/* Sub Tags Section */}
+        <Select
           value={tagName}
-          onChange={(e) => handleTag(e.target.value)}
-        >
-          <option value="">Select Tag</option>
-          <option value="div">Div</option>
-          <option value="span">Span</option>
-          <option value="a">Anchor (a)</option>
-        </select>
+          placeholder="Select sub tag"
+          unstyled
+          styles={customStyles}
+          components={{ DropdownIndicator }}
+          options={options()}
+          classNames={{
+            control: () =>
+              "rounded-md border bg-white/5 px-3.5 py-2 text-[#6b7280] shadow-sm border-[#6b7280] focus:outline-none focus:ring-0 focus:border-indigo-500",
+          }}
+        />
       </div>
 
       <button
-        className="rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 col-start-2"
+        className="row-start-3 col-start-2 col-span-2 rounded-md bg-indigo-500 px-3.5 py-2.5 text-white shadow-sm hover:bg-indigo-400 focus:outline-none focus:ring focus:ring-indigo-500"
         onClick={getData}
       >
         Scrape Data
       </button>
+
+      {/* Summary of Inputs */}
+      <div className="row-start-4 col-start-2 col-span-2 mt-4 p-4 border border-gray-300 rounded-md bg-white/5 text-white">
+        <h3 className="text-lg text-white">Scrape Details:</h3>
+        <p className="text-white">
+          <strong className={url.length>0 ?'text-indigo-500':'text-[#6b7280]' }>url:</strong> {url}
+        </p>
+        <p>
+          <strong className={tagName.length>0 ?'text-indigo-500':'text-[#6b7280]' }>Tag:</strong> {tagName}
+        </p>
+        <p>
+          <strong className={subTags.length>0 ?'text-indigo-500':'text-[#6b7280]' }>Sub Tags:</strong> {subTags.join(", ")}
+        </p>
+        <p>
+          <strong className={className.length>0 ?'text-indigo-500':'text-[#6b7280]' }>Class/ID:</strong> {className}
+        </p>
+        <p>
+          <strong className={searchText.length>0 ?'text-indigo-500':'text-[#6b7280]' }>Search Text:</strong> {searchText}
+        </p>
+      </div>
     </div>
   );
 };

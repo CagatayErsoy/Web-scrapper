@@ -1,50 +1,74 @@
-import React, { useState, useContext,  useEffect, createContext} from 'react'
-import axios from "axios";
+import React, { useState, useContext, createContext, useEffect } from 'react';
+import axios from 'axios';
 
+const initialState = {
+  modal: false,
+  url: '',
+  tagName: '',
+  searchText: '',
+  className: '',
+  subTags: [], // Array to handle multiple subtags
+};
 
-const initialState={
-    modal:true,
-    url:"",
-    tagName:"",
-    text:"",
-    className:""
-}
 const AppContext = createContext(initialState);
-const AppProvider= ( {children} ) => {
-const [state,setState]=useState(initialState)
 
-const getData=async()=>{
-    const {url,tagName,text,className}=state
+const AppProvider = ({ children }) => {
+  const [state, setState] = useState(initialState);
+
+  const getData = async () => {
+    const { url, tagName, searchText, className, subTags } = state;
     try {
-        const response = await axios.post("http://localhost:3000/scrape", {
-          url,
-          tagName,
-        });
-        
-      } catch (error) {
-        console.error("Error scraping data:", error);
-      }
-  
-}
-const handleUrl=(url)=>{
-    setState({...state,url:url})
-}
-const handleTag=(tag)=>{
-    setState({...state, tag:tag})
-}
-const handleText=(text)=>{
-    setState({...state,text:text})
-}
-const handleClassName=(className)=>{
-    setState({state,className:className})
-}
-const handleModal=()=>{
-    setState({...state, modal:!state.modal})
-}
+      const response = await axios.post('http://localhost:3000/scrape', {
+        url,
+        tagName,
+        searchText,
+        className,
+        subTags, // Include subTags in the request if needed
+      });
+      // Handle response
+    } catch (error) {
+      console.error('Error scraping data:', error);
+    }
+  };
 
-useEffect(()=>{
-  getData()
-},[])
+  const handleUrl = (url) => {
+    setState({ ...state, url });
+  };
+
+  const handleTag = (tag) => {
+    setState({ ...state, tagName: tag });
+  };
+
+  const handleText = (text) => {
+    setState({ ...state, searchText: text });
+  };
+
+  const handleClassName = (className) => {
+    setState({ ...state, className });
+  };
+
+  const handleModal = () => {
+    setState({ ...state, modal: !state.modal });
+  };
+
+  const handleAddSubTag = () => {
+    setState({ ...state, subTags: [...state.subTags, ''] });
+  };
+
+  const handleRemoveSubTag = (index) => {
+    const updatedSubTags = state.subTags.filter((_, i) => i !== index);
+    setState({ ...state, subTags: updatedSubTags });
+  };
+
+  const updateSubTag = (index, value) => {
+    const updatedSubTags = state.subTags.map((tag, i) => (i === index ? value : tag));
+    setState({ ...state, subTags: updatedSubTags });
+  };
+
+  useEffect(() => {
+    getData();
+  }, []); // Empty dependency array to prevent re-fetching
+
   return (
     <AppContext.Provider
       value={{
@@ -53,17 +77,19 @@ useEffect(()=>{
         handleTag,
         handleClassName,
         handleText,
-        getData, 
-        handleModal
-        
-      
+        getData,
+        handleModal,
+        handleAddSubTag,
+        handleRemoveSubTag,
+        updateSubTag,
       }}
     >
       {children}
     </AppContext.Provider>
-  )
-}
-// make sure use
+  );
+};
+
+// Custom hook to use the context
 export const useGlobalContext = () => {
   const context = useContext(AppContext);
   if (!context) {
@@ -72,4 +98,4 @@ export const useGlobalContext = () => {
   return context;
 };
 
-export { AppContext, AppProvider }
+export { AppContext, AppProvider };
