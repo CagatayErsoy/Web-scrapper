@@ -14,11 +14,16 @@ app.get('/', (req, res) => {
   });
 // Endpoint to receive URL and search query
 app.post('/scrape', async (req, res) => {
-    const { url, tagName, attributes } = req.body;
+    const { url, tagName, subTag, className, searchText } = req.body;
 
-    // Check if URL and tagName are provided
-    if (!url || !tagName) {
-        return res.status(400).send('URL and tagName are required');
+    // Check if at least one of the details is provided
+    if (!url || (!tagName && !className && !searchText)) {
+        return res.status(400).send('URL and at least one of tagName, className, or searchText are required');
+    }
+
+    // Check if subTag is provided without tagName
+    if (subTag && !tagName) {
+        return res.status(400).send('Sub tag cannot be selected without a main tag');
     }
 
     try {
@@ -26,35 +31,38 @@ app.post('/scrape', async (req, res) => {
         const page = await browser.newPage();
         await page.goto(url);
 
-        // Scrape data based on tagName and attributes
-        const data = await page.evaluate(({ tagName, attributes }) => {
-            const elements = Array.from(document.querySelectorAll(tagName));
-            return elements.map(element => {
-                let elementData = {};
+        // Scrape data based on the provided details
+        const data = await page.evaluate(({ tagName, subTag, className, searchText }) => {
+            let selector = tagName || '';
+            if (className) {
+                selector += `.${className}`;
+            }
+            if (subTag) {
+                selector += ` ${subTag}`;
+            }
 
-                // If attributes are provided, use them
-                if (attributes && attributes.length > 0) {
-                    attributes.forEach(attr => {
-                        if (attr === 'text') elementData.text = element.textContent.trim();
-                        else if (element.getAttribute(attr)) elementData[attr] = element.getAttribute(attr);
-                    });
-                } else {
-                    // Default to just text content if no attributes are specified
-                    elementData.text = element.textContent.trim();
+            const elements = Array.from(document.querySelectorAll(selector));
+            return elements.map(element => {
+                if (searchText && !element.textContent.includes(searchText)) {
+                    return null; // Skip elements that do not include the search text
                 }
-                
-                return elementData;
-            });
-        }, { tagName, attributes: attributes || [] });
+                return {
+                    text: element.textContent.trim(),
+                    html: element.innerHTML.trim()
+                    // Add more properties as needed
+                };
+            }).filter(element => element !== null);
+        }, { tagName, subTag, className, searchText });
 
         await browser.close();
 
-        return res.json(data);
+        return res.json(data.filter(item => item)); // Filter out null items
     } catch (error) {
         console.error('Scraping failed:', error.message);
         return res.status(500).send('Internal Server Error');
     }
 });
+
 
 
 app.listen(port, () => {
