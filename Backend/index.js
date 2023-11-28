@@ -4,10 +4,10 @@ const bodyParser = require('body-parser');
 const cors=require('cors')
 
 const app = express();
-const port = 3000;
+const PORT = 3000;
 app.use(cors());
 app.use(bodyParser.json());
-
+app.use(express.json())
 
 app.get('/', (req, res) => {
    console.log( " its working")
@@ -65,6 +65,6 @@ app.post('/scrape', async (req, res) => {
 
 
 
-app.listen(port,'0.0.0.0', () => {
-    console.log(`Server is running on ${port}`);
+app.listen(PORT,'0.0.0.0', () => {
+    console.log(`Server is running on ${PORT}`);
 });
