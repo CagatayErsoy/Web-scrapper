@@ -1,16 +1,17 @@
 const express = require('express');
+
 const puppeteer = require('puppeteer');
 const bodyParser = require('body-parser');
 const cors=require('cors')
 
 const app = express();
-const PORT = 3000;
+const PORT = 4000;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json())
 
-app.get('/', (req, res) => {
-   console.log( " its working")
+app.get('/test', (req, res) => {
+   res.send(" it works")
   });
 // Endpoint to receive URL and search query
 app.post('/scrape', async (req, res) => {

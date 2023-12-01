@@ -7,7 +7,8 @@ const initialState = {
   tagName: '',
   searchText: '',
   className: '',
-  subTags: [], // Array to handle multiple subtags
+  subTag: '',
+   
 };
 
 const AppContext = createContext(initialState);
@@ -16,14 +17,14 @@ const AppProvider = ({ children }) => {
   const [state, setState] = useState(initialState);
 
   const getData = async () => {
-    const { url, tagName, searchText, className, subTags } = state;
+    const { url, tagName, searchText, className, subTag ,response} = state;
     try {
       const response = await axios.post('http://localhost:3000/scrape', {
         url,
         tagName,
         searchText,
         className,
-        subTags, // Include subTags in the request if needed
+        subTag, // Include subTags in the request if needed
       });
       // Handle response
     } catch (error) {
@@ -52,7 +53,7 @@ const AppProvider = ({ children }) => {
   };
 
   const handleAddSubTag = () => {
-    setState({ ...state, subTags: [...state.subTags, ''] });
+    setState({ ...state, subTag: state.subTag });
   };
 
   const handleRemoveSubTag = (index) => {

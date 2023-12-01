@@ -32,7 +32,7 @@ const Details = () => {
   };
   console.log(options());
   return (
-    <div className="grid grid-cols-4 gap-4">
+    <div className="grid grid-cols-4 gap-4 -z-10">
       {/* URL Input */}
       <input
         type="url"

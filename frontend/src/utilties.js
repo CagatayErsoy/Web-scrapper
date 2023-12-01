@@ -83,3 +83,7 @@ const customStyles = {
 }
 
   export {customStyles}
+
+const fixTag=(tag)=>{
+  
+}
