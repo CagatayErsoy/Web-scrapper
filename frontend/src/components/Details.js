@@ -70,7 +70,9 @@ const Details = () => {
           styles={customStyles}
           components={{ DropdownIndicator }}
           options={options()}
-          onChange={(selectedOption) => handleTag(selectedOption ? selectedOption.value : '')}
+          onChange={(selectedOption) =>
+            handleTag(selectedOption ? selectedOption.value : "")
+          }
           classNames={{
             control: () =>
               "rounded-md border bg-white/5 px-3.5 py-2 text-[#6b7280] shadow-sm border-[#6b7280] focus:outline-none focus:ring-0 focus:border-indigo-500",
@@ -103,19 +105,34 @@ const Details = () => {
       <div className="row-start-4 col-start-2 col-span-2 mt-4 p-4 border border-gray-300 rounded-md bg-white/5 text-white">
         <h3 className="text-lg text-white">Scrape Details:</h3>
         <p className="text-white">
-          <strong className={url.length>0 ?'text-indigo-500':'text-[#6b7280]' }>url:</strong> {url}
+          <strong className={url ? "text-indigo-500" : "text-[#6b7280]"}>
+            url:
+          </strong>{" "}
+          {url}
         </p>
         <p>
-          <strong className={tagName.length>0 ?'text-indigo-500':'text-[#6b7280]' }>Tag:</strong> {tagName}
+          <strong className={tagName ? "text-indigo-500" : "text-[#6b7280]"}>
+            Tag:
+          </strong>{" "}
+          {tagName}
         </p>
         <p>
-          <strong className={subTags.length>0 ?'text-indigo-500':'text-[#6b7280]' }>Sub Tags:</strong> {subTags.join(", ")}
+          <strong className={subTags ? "text-indigo-500" : "text-[#6b7280]"}>
+            Sub Tags:
+          </strong>{" "}
+          {/* {subTags.join(", ")} */}
         </p>
         <p>
-          <strong className={className.length>0 ?'text-indigo-500':'text-[#6b7280]' }>Class/ID:</strong> {className}
+          <strong className={className ? "text-indigo-500" : "text-[#6b7280]"}>
+            Class/ID:
+          </strong>{" "}
+          {className}
         </p>
         <p>
-          <strong className={searchText.length>0 ?'text-indigo-500':'text-[#6b7280]' }>Search Text:</strong> {searchText}
+          <strong className={searchText ? "text-indigo-500" : "text-[#6b7280]"}>
+            Search Text:
+          </strong>{" "}
+          {searchText}
         </p>
       </div>
     </div>
