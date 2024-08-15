@@ -1,14 +1,13 @@
-import React, { useState, useContext, createContext, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useContext, createContext, useEffect } from "react";
+import axios from "axios";
 
 const initialState = {
   modal: false,
-  url: '',
-  tagName: '',
-  searchText: '',
-  className: '',
-  subTag: '',
-   
+  url: "",
+  tagName: "",
+  searchText: "",
+  className: "",
+  subTag: "",
 };
 
 const AppContext = createContext(initialState);
@@ -17,9 +16,9 @@ const AppProvider = ({ children }) => {
   const [state, setState] = useState(initialState);
 
   const getData = async () => {
-    const { url, tagName, searchText, className, subTag ,response} = state;
+    const { url, tagName, searchText, className, subTag } = state;
     try {
-      const response = await axios.post('http://localhost:3000/scrape', {
+      const response = await axios.post("http://localhost:4000/scrape", {
         url,
         tagName,
         searchText,
@@ -28,7 +27,7 @@ const AppProvider = ({ children }) => {
       });
       // Handle response
     } catch (error) {
-      console.error('Error scraping data:', error);
+      console.error("Error scraping data:", error);
     }
   };
 
@@ -62,7 +61,9 @@ const AppProvider = ({ children }) => {
   };
 
   const updateSubTag = (index, value) => {
-    const updatedSubTags = state.subTags.map((tag, i) => (i === index ? value : tag));
+    const updatedSubTags = state.subTags.map((tag, i) =>
+      i === index ? value : tag
+    );
     setState({ ...state, subTags: updatedSubTags });
   };
 
@@ -94,7 +95,7 @@ const AppProvider = ({ children }) => {
 export const useGlobalContext = () => {
   const context = useContext(AppContext);
   if (!context) {
-    throw new Error('useGlobalContext must be used within a AppProvider');
+    throw new Error("useGlobalContext must be used within a AppProvider");
   }
   return context;
 };

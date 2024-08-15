@@ -1,9 +1,11 @@
-import { useRef } from "react";
+import React from "react";
 import { useGlobalContext } from "../context";
 import { htmlTags, customStyles } from "../utilties";
 import Select, { components } from "react-select";
-import { FaChevronDown } from "react-icons/fa"; // Example using react-icons
+import { FaChevronDown } from "react-icons/fa";
 import "../costum-styles.css";
+import axios from "axios";
+
 const Details = () => {
   const {
     url,
@@ -14,7 +16,6 @@ const Details = () => {
     handleTag,
     handleClassName,
     handleText,
-    getData,
     subTags,
   } = useGlobalContext();
 
@@ -30,7 +31,29 @@ const Details = () => {
   const options = () => {
     return htmlTags.map((tag) => ({ value: tag, label: tag }));
   };
-  console.log(options());
+
+  const getData = async () => {
+    // Validate that at least one of tagName, className, or subTag is provided
+    if (!tagName && !className && !subTags.length) {
+      alert("Please provide at least one of tagName, className, or Sub Tag.");
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:4000/scrape", {
+        url,
+        tagName,
+        className,
+        searchText,
+        subTags,
+      });
+
+      console.log("Scraped Data:", response.data);
+    } catch (error) {
+      console.error("Error scraping data:", error);
+    }
+  };
+
   return (
     <div className="grid grid-cols-4 gap-4 -z-10">
       {/* URL Input */}
@@ -77,11 +100,10 @@ const Details = () => {
             control: () =>
               "rounded-md border bg-white/5 px-3.5 py-2 text-[#6b7280] shadow-sm border-[#6b7280] focus:outline-none focus:ring-0 focus:border-indigo-500",
           }}
-          // classNamePrefix="dropdown"
         />
         {/* Sub Tags Section */}
         <Select
-          value={tagName}
+          value={subTags}
           placeholder="Select sub tag"
           unstyled
           styles={customStyles}
@@ -91,6 +113,7 @@ const Details = () => {
             control: () =>
               "rounded-md border bg-white/5 px-3.5 py-2 text-[#6b7280] shadow-sm border-[#6b7280] focus:outline-none focus:ring-0 focus:border-indigo-500",
           }}
+          isMulti
         />
       </div>
 
@@ -106,7 +129,7 @@ const Details = () => {
         <h3 className="text-lg text-white">Scrape Details:</h3>
         <p className="text-white">
           <strong className={url ? "text-indigo-500" : "text-[#6b7280]"}>
-            url:
+            URL:
           </strong>{" "}
           {url}
         </p>
@@ -120,7 +143,7 @@ const Details = () => {
           <strong className={subTags ? "text-indigo-500" : "text-[#6b7280]"}>
             Sub Tags:
           </strong>{" "}
-          {/* {subTags.join(", ")} */}
+          {subTags ? subTags.join(", ") : ""}
         </p>
         <p>
           <strong className={className ? "text-indigo-500" : "text-[#6b7280]"}>

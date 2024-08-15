@@ -6,15 +6,14 @@ import Navbar from "./components/Navbar";
 import { useGlobalContext } from "./context";
 import Modal from "./components/Modal";
 function App() {
-  const {modal}=useGlobalContext()
+  const { modal } = useGlobalContext();
   const [data, setData] = useState(null);
-  const [modalContent, setModalContent]=useState("")
-  
-  console.log(modal)
+  const [modalContent, setModalContent] = useState("");
+
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-900 py-16 sm:py-24 lg:py-32">
-    <Navbar setModalContent={setModalContent}/>
-    {modal? <Modal modalContent={modalContent}/> : ""}
+      <Navbar setModalContent={setModalContent} />
+      {modal ? <Modal modalContent={modalContent} /> : ""}
       <div className="w-full max-w-4xl px-6 lg:px-8">
         <div className="mb-10 text-center">
           <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
@@ -24,7 +23,7 @@ function App() {
             Enter the URL of the website and select the tag to scrape data.
           </p>
         </div>
-      <Details/>
+        <Details />
       </div>
       {data && (
         <div className="w-full max-w-2xl px-6 lg:px-8 mt-10">
