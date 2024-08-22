@@ -1,5 +1,6 @@
 import React, { useState, useContext, createContext, useEffect } from "react";
 import axios from "axios";
+const apiUrl = process.env.REACT_APP_API_URL;
 
 const initialState = {
   modal: false,
@@ -8,6 +9,7 @@ const initialState = {
   searchText: "",
   className: "",
   subTag: "",
+  result: "",
 };
 
 const AppContext = createContext(initialState);
@@ -15,19 +17,45 @@ const AppContext = createContext(initialState);
 const AppProvider = ({ children }) => {
   const [state, setState] = useState(initialState);
 
+  // const getData = async () => {
+  //   const { url, tagName, searchText, className, subTag } = state;
+  //   try {
+  //     const response = await axios.post(
+  //       "https://backend-dawn-waterfall-7274.fly.dev/scrape",
+  //       {
+  //         url,
+  //         tagName,
+  //         searchText,
+  //         className,
+  //         subTag, // Include subTags in the request if needed
+  //       }
+  //     );
+  //     // Handle response
+  //   } catch (error) {
+  //     console.error("Error scraping data:", error);
+  //   }
+  // };
   const getData = async () => {
     const { url, tagName, searchText, className, subTag } = state;
-    try {
-      const response = await axios.post("http://localhost:4000/scrape", {
-        url,
-        tagName,
-        searchText,
-        className,
-        subTag, // Include subTags in the request if needed
-      });
-      // Handle response
-    } catch (error) {
-      console.error("Error scraping data:", error);
+    if (!tagName && !className && !subTag.length) {
+      alert("Please provide at least one of tagName, className, or Sub Tag.");
+      return;
+    } else {
+      try {
+        console.log("in try");
+        const response = await axios.post(`${apiUrl}/scrape`, {
+          url,
+          tagName,
+          className,
+          searchText,
+          subTag,
+        });
+
+        console.log("Scraped Data:", response.data);
+        setState({ ...state, result: response.data });
+      } catch (error) {
+        console.error("Error scraping data:", error);
+      }
     }
   };
 
@@ -67,9 +95,7 @@ const AppProvider = ({ children }) => {
     setState({ ...state, subTags: updatedSubTags });
   };
 
-  useEffect(() => {
-    getData();
-  }, []); // Empty dependency array to prevent re-fetching
+  // Empty dependency array to prevent re-fetching
 
   return (
     <AppContext.Provider

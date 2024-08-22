@@ -1,13 +1,15 @@
+require("dotenv-flow").config();
+
 const express = require("express");
 const puppeteer = require("puppeteer");
 const cors = require("cors");
-
+const appUrl = process.env.APP_URL;
 const app = express();
-const PORT = 4000;
-
+const PORT = process.env.PORT || 4000;
+console.log("CORS allowed origin:", process.env.APP_URL);
 app.use(
   cors({
-    origin: "http://localhost:3000", // Adjust according to your frontend URL
+    origin: `${appUrl}`,
     methods: ["GET", "POST"],
     credentials: true,
   })
@@ -73,12 +75,16 @@ app.post("/scrape", async (req, res) => {
         return elements
           .map((element) => {
             if (searchText && !element.textContent.includes(searchText)) {
+              console.log(element);
               return null; // Skip elements that do not include the search text
             }
             return {
-              //   text: element.textContent.trim(),
-              //   html: element.innerHTML.trim(),
-              element,
+              text: element.textContent.trim(),
+              html: element.innerHTML.trim(),
+              // alt: element.alt.trim(),
+              // url: element.url.trim(),
+              // class: element.class.trim(),
+              // id: element.id.trim(),
             };
           })
           .filter((element) => element !== null);

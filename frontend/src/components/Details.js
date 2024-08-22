@@ -17,6 +17,7 @@ const Details = () => {
     handleClassName,
     handleText,
     subTags,
+    getData,
   } = useGlobalContext();
 
   const DropdownIndicator = (props) => {
@@ -32,30 +33,8 @@ const Details = () => {
     return htmlTags.map((tag) => ({ value: tag, label: tag }));
   };
 
-  const getData = async () => {
-    // Validate that at least one of tagName, className, or subTag is provided
-    if (!tagName && !className && !subTags.length) {
-      alert("Please provide at least one of tagName, className, or Sub Tag.");
-      return;
-    }
-
-    try {
-      const response = await axios.post("http://localhost:4000/scrape", {
-        url,
-        tagName,
-        className,
-        searchText,
-        subTags,
-      });
-
-      console.log("Scraped Data:", response.data);
-    } catch (error) {
-      console.error("Error scraping data:", error);
-    }
-  };
-
   return (
-    <div className="grid grid-cols-4 gap-4 -z-10">
+    <div className="grid grid-cols-4 gap-4">
       {/* URL Input */}
       <input
         type="url"
@@ -119,7 +98,7 @@ const Details = () => {
 
       <button
         className="row-start-3 col-start-2 col-span-2 rounded-md bg-indigo-500 px-3.5 py-2.5 text-white shadow-sm hover:bg-indigo-400 focus:outline-none focus:ring focus:ring-indigo-500"
-        onClick={getData}
+        onClick={() => getData()}
       >
         Scrape Data
       </button>
