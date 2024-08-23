@@ -1,11 +1,18 @@
-import React, { useState, useContext, createContext, useEffect } from "react";
+import React, {
+  useState,
+  useContext,
+  createContext,
+  useEffect,
+  useRef,
+} from "react";
 import axios from "axios";
 const apiUrl = process.env.REACT_APP_API_URL;
 
 const initialState = {
   modal: false,
+  modalContent: "",
   url: "",
-  tagName: "",
+  tag: "",
   searchText: "",
   className: "",
   subTag: "",
@@ -16,36 +23,17 @@ const AppContext = createContext(initialState);
 
 const AppProvider = ({ children }) => {
   const [state, setState] = useState(initialState);
-
-  // const getData = async () => {
-  //   const { url, tagName, searchText, className, subTag } = state;
-  //   try {
-  //     const response = await axios.post(
-  //       "https://backend-dawn-waterfall-7274.fly.dev/scrape",
-  //       {
-  //         url,
-  //         tagName,
-  //         searchText,
-  //         className,
-  //         subTag, // Include subTags in the request if needed
-  //       }
-  //     );
-  //     // Handle response
-  //   } catch (error) {
-  //     console.error("Error scraping data:", error);
-  //   }
-  // };
   const getData = async () => {
-    const { url, tagName, searchText, className, subTag } = state;
-    if (!tagName && !className && !subTag.length) {
-      alert("Please provide at least one of tagName, className, or Sub Tag.");
+    const { url, tag, searchText, className, subTag } = state;
+    if (!tag && !className && !subTag.length) {
+      alert("Please provide at least one of tag, className, or Sub Tag.");
       return;
     } else {
       try {
         console.log("in try");
         const response = await axios.post(`${apiUrl}/scrape`, {
           url,
-          tagName,
+          tag,
           className,
           searchText,
           subTag,
@@ -53,8 +41,10 @@ const AppProvider = ({ children }) => {
 
         console.log("Scraped Data:", response.data);
         setState({ ...state, result: response.data });
+        // handleModal();
       } catch (error) {
         console.error("Error scraping data:", error);
+        // handleModal();
       }
     }
   };
@@ -64,7 +54,7 @@ const AppProvider = ({ children }) => {
   };
 
   const handleTag = (tag) => {
-    setState({ ...state, tagName: tag });
+    setState({ ...state, tag: tag });
   };
 
   const handleText = (text) => {
@@ -79,21 +69,24 @@ const AppProvider = ({ children }) => {
     setState({ ...state, modal: !state.modal });
   };
 
-  const handleAddSubTag = () => {
-    setState({ ...state, subTag: state.subTag });
+  const handleSubTag = (subTag) => {
+    setState({ ...state, subTag: subTag });
+  };
+  const handleModalContent = (content) => {
+    setState({ ...state, modalContent: content, modal: !state.modal });
   };
 
-  const handleRemoveSubTag = (index) => {
-    const updatedSubTags = state.subTags.filter((_, i) => i !== index);
-    setState({ ...state, subTags: updatedSubTags });
-  };
+  // const handleRemoveSubTag = (index) => {
+  //   const updatedSubTags = state.subTags.filter((_, i) => i !== index);
+  //   setState({ ...state, subTags: updatedSubTags });
+  // };
 
-  const updateSubTag = (index, value) => {
-    const updatedSubTags = state.subTags.map((tag, i) =>
-      i === index ? value : tag
-    );
-    setState({ ...state, subTags: updatedSubTags });
-  };
+  // const updateSubTag = (index, value) => {
+  //   const updatedSubTags = state.subTags.map((tag, i) =>
+  //     i === index ? value : tag
+  //   );
+  //   setState({ ...state, subTags: updatedSubTags });
+  // };
 
   // Empty dependency array to prevent re-fetching
 
@@ -106,10 +99,12 @@ const AppProvider = ({ children }) => {
         handleClassName,
         handleText,
         getData,
+        handleSubTag,
         handleModal,
-        handleAddSubTag,
-        handleRemoveSubTag,
-        updateSubTag,
+        handleModalContent,
+
+        // handleRemoveSubTag,
+        // updateSubTag,
       }}
     >
       {children}

@@ -9,14 +9,15 @@ import axios from "axios";
 const Details = () => {
   const {
     url,
-    tagName,
+    tag,
     className,
     searchText,
     handleUrl,
     handleTag,
     handleClassName,
     handleText,
-    subTags,
+    handleSubTag,
+    subTag,
     getData,
   } = useGlobalContext();
 
@@ -32,6 +33,10 @@ const Details = () => {
   const options = () => {
     return htmlTags.map((tag) => ({ value: tag, label: tag }));
   };
+  //organizing subtag select
+  const selectedTag = options().find((option) => option.value === tag) || null;
+  const selectedSubTag =
+    options().find((option) => option.value === subTag) || null;
 
   return (
     <div className="grid grid-cols-4 gap-4">
@@ -66,7 +71,7 @@ const Details = () => {
 
         {/* Tag Selector */}
         <Select
-          value={tagName}
+          value={selectedTag}
           placeholder="Select tag"
           unstyled
           styles={customStyles}
@@ -82,7 +87,7 @@ const Details = () => {
         />
         {/* Sub Tags Section */}
         <Select
-          value={subTags}
+          value={selectedSubTag}
           placeholder="Select sub tag"
           unstyled
           styles={customStyles}
@@ -92,13 +97,17 @@ const Details = () => {
             control: () =>
               "rounded-md border bg-white/5 px-3.5 py-2 text-[#6b7280] shadow-sm border-[#6b7280] focus:outline-none focus:ring-0 focus:border-indigo-500",
           }}
-          isMulti
+          onChange={(selectedOption) =>
+            handleSubTag(selectedOption ? selectedOption.value : "")
+          }
         />
       </div>
 
       <button
         className="row-start-3 col-start-2 col-span-2 rounded-md bg-indigo-500 px-3.5 py-2.5 text-white shadow-sm hover:bg-indigo-400 focus:outline-none focus:ring focus:ring-indigo-500"
-        onClick={() => getData()}
+        onClick={() => {
+          getData();
+        }}
       >
         Scrape Data
       </button>
@@ -113,16 +122,16 @@ const Details = () => {
           {url}
         </p>
         <p>
-          <strong className={tagName ? "text-indigo-500" : "text-[#6b7280]"}>
+          <strong className={tag ? "text-indigo-500" : "text-[#6b7280]"}>
             Tag:
           </strong>{" "}
-          {tagName}
+          {tag}
         </p>
         <p>
-          <strong className={subTags ? "text-indigo-500" : "text-[#6b7280]"}>
+          <strong className={subTag ? "text-indigo-500" : "text-[#6b7280]"}>
             Sub Tags:
           </strong>{" "}
-          {subTags ? subTags.join(", ") : ""}
+          {subTag}
         </p>
         <p>
           <strong className={className ? "text-indigo-500" : "text-[#6b7280]"}>

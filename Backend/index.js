@@ -19,24 +19,13 @@ app.use(express.json());
 app.get("/test", (req, res) => {
   res.send("It works");
 });
-
 app.post("/scrape", async (req, res) => {
-  const { url, tagName, className, subTag, searchText } = req.body;
+  const { url, tag, className, subTag, searchText } = req.body;
 
-  // Log incoming request body to debug
   console.log("Request Body:", req.body);
 
-  // Validate that URL and at least one selector part is provided
   if (!url) {
-    return res.status(400).send("URL is required");
-  }
-
-  if (!tagName && !className && !subTag) {
-    return res
-      .status(400)
-      .send(
-        "At least one of tagName, className, or subTag is required to create a valid selector."
-      );
+    return res.status(400).json({ error: "URL is required" });
   }
 
   let browser;
@@ -48,10 +37,8 @@ app.post("/scrape", async (req, res) => {
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: "domcontentloaded" });
 
-    // Clean up tagName to ensure no angle brackets are included
-    const cleanTagName = tagName ? tagName.replace(/<|>/g, "") : "";
+    const cleanTagName = tag ? tag.replace(/<|>/g, "") : "";
 
-    // Construct the selector based on provided parameters
     let selector = cleanTagName || "";
     if (className) {
       selector += `.${className}`;
@@ -62,41 +49,48 @@ app.post("/scrape", async (req, res) => {
 
     console.log("Constructed Selector:", selector);
 
-    // Wait for the selector to appear if the content is loaded dynamically
-    await page.waitForSelector(selector, { timeout: 5000 }).catch(() => {
-      console.error("Selector not found:", selector);
-      throw new Error("Selector not found on the page.");
-    });
-
+    // Pass the selector and searchText into the evaluate function
     const data = await page.evaluate(
       ({ selector, searchText }) => {
-        const elements = Array.from(document.querySelectorAll(selector));
-        console.log(searchText);
-        return elements
-          .map((element) => {
-            if (searchText && !element.textContent.includes(searchText)) {
-              console.log(element);
-              return null; // Skip elements that do not include the search text
-            }
+        try {
+          const elements = Array.from(document.querySelectorAll(selector));
+          if (elements.length === 0) {
             return {
-              text: element.textContent.trim(),
-              html: element.innerHTML.trim(),
-              // alt: element.alt.trim(),
-              // url: element.url.trim(),
-              // class: element.class.trim(),
-              // id: element.id.trim(),
+              success: true,
+              data: [],
+              message: "No matching elements found",
             };
-          })
-          .filter((element) => element !== null);
+          }
+          return {
+            success: true,
+            data: elements
+              .map((element) => {
+                if (searchText && !element.textContent.includes(searchText)) {
+                  return null; // Skip elements that do not include the search text
+                }
+                return {
+                  text: element.textContent.trim(),
+                  html: element.innerHTML.trim(),
+                };
+              })
+              .filter((element) => element !== null),
+          };
+        } catch (e) {
+          return {
+            success: true,
+            data: [],
+            message: "Invalid selector or no matching elements found",
+          };
+        }
       },
       { selector, searchText }
     );
 
     await browser.close();
 
-    if (data.length === 0) {
-      console.warn("No matching elements found for selector:", selector);
-      return res.status(404).json({ error: "No matching elements found" });
+    if (data.data.length === 0) {
+      console.warn(data.message);
+      return res.json(data);
     }
 
     return res.json(data);
