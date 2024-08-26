@@ -9,7 +9,7 @@ function App() {
   // const { modal } = useGlobalContext();
   // console.log("Modal State:", modal);
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gray-900 py-16 sm:py-24 lg:py-32">
+    <div className="flex flex-col items-center h-full w-full bg-gray-900 py-16 sm:py-24 lg:py-32 absolute">
       <Navbar />
       {<Modal />}
       <Title />

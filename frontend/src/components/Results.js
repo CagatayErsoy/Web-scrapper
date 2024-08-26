@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Results() {
   return (
-    <div>
+    <div className="">
       This is Result
       {/* {data && (
         <div className="w-full max-w-2xl px-6 lg:px-8 mt-10">

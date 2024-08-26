@@ -25,8 +25,8 @@ const Modal = () => {
   if (!modal) return null; // Don't render the modal if it's not active
 
   return (
-    <div className="h-full w-full bg-opacity-70 bg-grey z-10 absolute flex justify-center items-center">
-      <section className="w-1/2 h-2/3 bg-[#0f1623] mx-auto my-auto flex flex-col z-20 border rounded-md border-slate-500 relative">
+    <div className="h-screen w-screen bg-opacity-70 bg-grey z-10 absolute flex justify-center items-center">
+      <section className=" bg-[#0f1623] mx-auto my-auto flex flex-col z-20 border rounded-md border-slate-500 relative">
         {content}
         <button
           className="absolute top-3 right-3 text-3lg text-slate-50"
